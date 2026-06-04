@@ -1,6 +1,9 @@
 import json
 import os
 import re
+import urllib.error
+import urllib.parse
+import urllib.request
 from collections import Counter, defaultdict
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -15,6 +18,9 @@ app = Flask(__name__)
 classifier = build_classifier()
 IS_VERCEL = bool(os.getenv("VERCEL"))
 HISTORY_PATH = Path("data/analysis_history.json")
+SUPABASE_URL = os.getenv("SUPABASE_URL", "").rstrip("/")
+SUPABASE_SERVICE_ROLE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
+SUPABASE_TABLE = "analysis_history"
 MAX_TEXT_LENGTH = 5000
 
 
@@ -171,7 +177,99 @@ def build_sample_history():
     return entries
 
 
+def supabase_configured():
+    return bool(SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY)
+
+
+def supabase_headers():
+    return {
+        "apikey": SUPABASE_SERVICE_ROLE_KEY,
+        "Authorization": f"Bearer {SUPABASE_SERVICE_ROLE_KEY}",
+        "Content-Type": "application/json",
+    }
+
+
+def supabase_table_url():
+    return f"{SUPABASE_URL}/rest/v1/{SUPABASE_TABLE}"
+
+
+def supabase_request(method, params=None, body=None, prefer=None):
+    url = supabase_table_url()
+    if params:
+        url = f"{url}?{urllib.parse.urlencode(params)}"
+
+    headers = supabase_headers()
+    if prefer:
+        headers["Prefer"] = prefer
+
+    data = None
+    if body is not None:
+        data = json.dumps(body).encode("utf-8")
+
+    request_data = urllib.request.Request(url, data=data, headers=headers, method=method)
+    with urllib.request.urlopen(request_data, timeout=8) as response:
+        raw_body = response.read().decode("utf-8")
+        return json.loads(raw_body) if raw_body else []
+
+
+def load_supabase_history():
+    try:
+        rows = supabase_request(
+            "GET",
+            params={
+                "select": "id,payload,created_at",
+                "order": "created_at.desc",
+                "limit": "50",
+            },
+        )
+    except (urllib.error.URLError, TimeoutError, json.JSONDecodeError):
+        return build_sample_history()
+
+    entries = []
+    for row in rows:
+        payload = row.get("payload") or {}
+        payload["id"] = row.get("id", payload.get("id", 0))
+        payload["timestamp"] = payload.get("timestamp") or row.get("created_at")
+        try:
+            payload["timestamp"] = datetime.fromisoformat(str(payload["timestamp"]).replace("Z", "+00:00"))
+        except (KeyError, ValueError):
+            payload["timestamp"] = datetime.now()
+        entries.append(hydrate_entry(payload))
+    return entries or build_sample_history()
+
+
+def save_supabase_entry(entry):
+    payload = serialize_entry(entry)
+    payload.pop("id", None)
+    try:
+        rows = supabase_request(
+            "POST",
+            body={"payload": payload},
+            prefer="return=representation",
+        )
+    except (urllib.error.URLError, TimeoutError, json.JSONDecodeError):
+        return entry
+
+    if rows:
+        entry["id"] = rows[0].get("id", entry.get("id", 0))
+    return entry
+
+
+def clear_supabase_history():
+    try:
+        supabase_request(
+            "DELETE",
+            params={"id": "not.is.null"},
+        )
+    except (urllib.error.URLError, TimeoutError, json.JSONDecodeError):
+        return False
+    return True
+
+
 def save_entries(entries):
+    if supabase_configured():
+        return
+
     if IS_VERCEL:
         return
 
@@ -181,6 +279,9 @@ def save_entries(entries):
 
 
 def load_history():
+    if supabase_configured():
+        return load_supabase_history()
+
     if IS_VERCEL:
         return build_sample_history()
 
@@ -234,8 +335,11 @@ def create_analysis(message):
         **result,
     }
     hydrate_entry(entry)
+    if supabase_configured():
+        save_supabase_entry(entry)
     analysis_log.insert(0, entry)
-    save_history()
+    if not supabase_configured():
+        save_history()
     return entry
 
 
@@ -376,7 +480,10 @@ def resources():
 @app.route("/clear-history", methods=["POST"])
 def clear_history():
     analysis_log.clear()
-    save_history()
+    if supabase_configured():
+        clear_supabase_history()
+    else:
+        save_history()
     return redirect(url_for("dashboard"))
 
 
