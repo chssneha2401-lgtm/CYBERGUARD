@@ -178,7 +178,11 @@ def build_sample_history():
 
 
 def supabase_configured():
-    return bool(SUPABASE_URL and SUPABASE_SECRET_KEY)
+    return bool(
+        SUPABASE_URL.startswith("https://")
+        and ".supabase.co" in SUPABASE_URL
+        and SUPABASE_SECRET_KEY
+    )
 
 
 def supabase_headers():
@@ -222,12 +226,23 @@ def supabase_error_message(error):
     return str(error)
 
 
+def supabase_request_failed(error):
+    return isinstance(error, (OSError, TimeoutError, ValueError, json.JSONDecodeError))
+
+
 def check_supabase_connection():
-    if not supabase_configured():
+    if not SUPABASE_URL or not SUPABASE_SECRET_KEY:
         return {
             "connected": False,
             "configured": False,
             "message": "Missing SUPABASE_URL or SUPABASE_SECRET_KEY in environment variables.",
+        }
+
+    if not supabase_configured():
+        return {
+            "connected": False,
+            "configured": True,
+            "message": "SUPABASE_URL must look like https://your-project-ref.supabase.co and SUPABASE_SECRET_KEY must not be empty.",
         }
 
     try:
@@ -235,7 +250,9 @@ def check_supabase_connection():
             "GET",
             params={"select": "id", "limit": "1"},
         )
-    except (urllib.error.URLError, TimeoutError, json.JSONDecodeError) as error:
+    except Exception as error:
+        if not supabase_request_failed(error):
+            raise
         return {
             "connected": False,
             "configured": True,
@@ -260,7 +277,9 @@ def load_supabase_history():
                 "limit": "50",
             },
         )
-    except (urllib.error.URLError, TimeoutError, json.JSONDecodeError) as error:
+    except Exception as error:
+        if not supabase_request_failed(error):
+            raise
         print(f"Supabase history load failed: {supabase_error_message(error)}")
         return build_sample_history()
 
@@ -286,7 +305,9 @@ def save_supabase_entry(entry):
             body={"payload": payload},
             prefer="return=representation",
         )
-    except (urllib.error.URLError, TimeoutError, json.JSONDecodeError) as error:
+    except Exception as error:
+        if not supabase_request_failed(error):
+            raise
         print(f"Supabase history insert failed: {supabase_error_message(error)}")
         return entry
 
@@ -301,7 +322,9 @@ def clear_supabase_history():
             "DELETE",
             params={"id": "not.is.null"},
         )
-    except (urllib.error.URLError, TimeoutError, json.JSONDecodeError) as error:
+    except Exception as error:
+        if not supabase_request_failed(error):
+            raise
         print(f"Supabase history clear failed: {supabase_error_message(error)}")
         return False
     return True
