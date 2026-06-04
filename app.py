@@ -19,7 +19,7 @@ classifier = build_classifier()
 IS_VERCEL = bool(os.getenv("VERCEL"))
 HISTORY_PATH = Path("data/analysis_history.json")
 SUPABASE_URL = os.getenv("SUPABASE_URL", "").rstrip("/")
-SUPABASE_SERVICE_ROLE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
+SUPABASE_SECRET_KEY = os.getenv("SUPABASE_SECRET_KEY") or os.getenv("SUPABASE_SERVICE_ROLE_KEY")
 SUPABASE_TABLE = "analysis_history"
 MAX_TEXT_LENGTH = 5000
 
@@ -178,13 +178,13 @@ def build_sample_history():
 
 
 def supabase_configured():
-    return bool(SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY)
+    return bool(SUPABASE_URL and SUPABASE_SECRET_KEY)
 
 
 def supabase_headers():
     return {
-        "apikey": SUPABASE_SERVICE_ROLE_KEY,
-        "Authorization": f"Bearer {SUPABASE_SERVICE_ROLE_KEY}",
+        "apikey": SUPABASE_SECRET_KEY,
+        "Authorization": f"Bearer {SUPABASE_SECRET_KEY}",
         "Content-Type": "application/json",
     }
 
