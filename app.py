@@ -1,4 +1,5 @@
 import json
+import os
 import re
 from collections import Counter, defaultdict
 from datetime import datetime, timedelta
@@ -12,7 +13,7 @@ from model import CATEGORY_ORDER, build_classifier
 
 app = Flask(__name__)
 classifier = build_classifier()
-HISTORY_PATH = Path("data/analysis_history.json")
+HISTORY_PATH = Path("/tmp/analysis_history.json") if os.getenv("VERCEL") else Path("data/analysis_history.json")
 MAX_TEXT_LENGTH = 5000
 
 
