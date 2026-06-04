@@ -8,7 +8,7 @@ from collections import Counter, defaultdict
 from datetime import datetime, timedelta
 from pathlib import Path
 
-from flask import Flask, redirect, render_template, request, url_for
+from flask import Flask, jsonify, redirect, render_template, request, url_for
 from markupsafe import Markup, escape
 
 from model import CATEGORY_ORDER, build_classifier
@@ -212,6 +212,44 @@ def supabase_request(method, params=None, body=None, prefer=None):
         return json.loads(raw_body) if raw_body else []
 
 
+def supabase_error_message(error):
+    if isinstance(error, urllib.error.HTTPError):
+        try:
+            body = error.read().decode("utf-8")
+        except Exception:
+            body = ""
+        return f"HTTP {error.code}: {body or error.reason}"
+    return str(error)
+
+
+def check_supabase_connection():
+    if not supabase_configured():
+        return {
+            "connected": False,
+            "configured": False,
+            "message": "Missing SUPABASE_URL or SUPABASE_SECRET_KEY in environment variables.",
+        }
+
+    try:
+        rows = supabase_request(
+            "GET",
+            params={"select": "id", "limit": "1"},
+        )
+    except (urllib.error.URLError, TimeoutError, json.JSONDecodeError) as error:
+        return {
+            "connected": False,
+            "configured": True,
+            "message": supabase_error_message(error),
+        }
+
+    return {
+        "connected": True,
+        "configured": True,
+        "message": "Supabase table is reachable.",
+        "sample_rows": len(rows),
+    }
+
+
 def load_supabase_history():
     try:
         rows = supabase_request(
@@ -222,7 +260,8 @@ def load_supabase_history():
                 "limit": "50",
             },
         )
-    except (urllib.error.URLError, TimeoutError, json.JSONDecodeError):
+    except (urllib.error.URLError, TimeoutError, json.JSONDecodeError) as error:
+        print(f"Supabase history load failed: {supabase_error_message(error)}")
         return build_sample_history()
 
     entries = []
@@ -247,7 +286,8 @@ def save_supabase_entry(entry):
             body={"payload": payload},
             prefer="return=representation",
         )
-    except (urllib.error.URLError, TimeoutError, json.JSONDecodeError):
+    except (urllib.error.URLError, TimeoutError, json.JSONDecodeError) as error:
+        print(f"Supabase history insert failed: {supabase_error_message(error)}")
         return entry
 
     if rows:
@@ -261,7 +301,8 @@ def clear_supabase_history():
             "DELETE",
             params={"id": "not.is.null"},
         )
-    except (urllib.error.URLError, TimeoutError, json.JSONDecodeError):
+    except (urllib.error.URLError, TimeoutError, json.JSONDecodeError) as error:
+        print(f"Supabase history clear failed: {supabase_error_message(error)}")
         return False
     return True
 
@@ -474,6 +515,16 @@ def resources():
         result=None,
         error=None,
         **dashboard_context(),
+    )
+
+
+@app.route("/health")
+def health():
+    return jsonify(
+        {
+            "app": "ok",
+            "supabase": check_supabase_connection(),
+        }
     )
 
 
