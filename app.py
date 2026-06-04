@@ -13,7 +13,8 @@ from model import CATEGORY_ORDER, build_classifier
 
 app = Flask(__name__)
 classifier = build_classifier()
-HISTORY_PATH = Path("/tmp/analysis_history.json") if os.getenv("VERCEL") else Path("data/analysis_history.json")
+IS_VERCEL = bool(os.getenv("VERCEL"))
+HISTORY_PATH = Path("data/analysis_history.json")
 MAX_TEXT_LENGTH = 5000
 
 
@@ -171,12 +172,18 @@ def build_sample_history():
 
 
 def save_entries(entries):
+    if IS_VERCEL:
+        return
+
     HISTORY_PATH.parent.mkdir(parents=True, exist_ok=True)
     with HISTORY_PATH.open("w", encoding="utf-8") as file:
         json.dump([serialize_entry(item) for item in entries], file, indent=2)
 
 
 def load_history():
+    if IS_VERCEL:
+        return build_sample_history()
+
     if not HISTORY_PATH.exists():
         sample_history = build_sample_history()
         save_entries(sample_history)
