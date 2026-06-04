@@ -1,0 +1,659 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>CyberGuard AI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
+  </head>
+  <body>
+    <div class="aurora aurora-one"></div>
+    <div class="aurora aurora-two"></div>
+
+    <header class="topbar">
+      <a class="brand" href="{{ url_for('detect') }}" aria-label="CyberGuard AI Detect">
+        <span class="brand-icon">CG</span>
+        <span>
+          <strong>CyberGuard AI</strong>
+          <small>Gemini 2.5 Flash AI</small>
+        </span>
+      </a>
+      <nav class="nav-pills" aria-label="Main navigation">
+        <a class="{{ 'active' if page == 'detect' else '' }}" href="{{ url_for('detect') }}">Detect</a>
+        <a class="{{ 'active' if page == 'dashboard' else '' }}" href="{{ url_for('dashboard') }}">Dashboard</a>
+        <a class="{{ 'active' if page == 'resources' else '' }}" href="{{ url_for('resources') }}">Resources</a>
+      </nav>
+    </header>
+
+    <main class="app-shell page-{{ page }}">
+      {% if page == 'detect' %}
+        <section class="hero-grid">
+          <div class="hero-copy">
+            <p class="eyebrow">Powered by Gemini 2.5 Flash AI</p>
+            <h1>Spot harmful language before it spreads.</h1>
+            <p class="hero-summary">
+              Paste a comment, message, or chat excerpt and get a clear safety verdict with category, risk level, confidence, and flagged words.
+            </p>
+            <div class="mini-stats" aria-label="Project stats">
+              <span><strong>{{ stats.total }}</strong> scans</span>
+              <span><strong>{{ stats.flagged }}</strong> flagged</span>
+              <span><strong>{{ stats.safe }}</strong> safe</span>
+            </div>
+          </div>
+
+          <form method="post" action="{{ url_for('analyze') }}" class="analyzer-card" novalidate>
+            <div class="panel-head">
+              <div>
+                <p class="eyebrow">Analyze</p>
+                <h2>Message Scanner</h2>
+              </div>
+              <span class="ai-badge">G2.5</span>
+            </div>
+            <label for="message">Comment or message</label>
+            {% if error %}
+              <p class="alert-message">{{ error }}</p>
+            {% endif %}
+            <textarea
+              id="message"
+              name="message"
+              rows="8"
+              maxlength="5000"
+              placeholder="Paste a message here..."
+              aria-describedby="messageHelp">{{ message }}</textarea>
+            <div class="input-help" id="messageHelp">
+              <span>Maximum 5,000 characters</span>
+              <span><strong id="charCount">{{ message|length }}</strong>/5000</span>
+            </div>
+            <section class="example-panel" aria-label="Example messages">
+              <div class="example-head">
+                <span>Try examples</span>
+                <small>Click to paste</small>
+              </div>
+              <div class="example-grid">
+                <button class="example-chip" type="button" data-example="You are such a dumb loser, nobody wants your opinion.">
+                  <strong>Example 1</strong>
+                  <span>Insult</span>
+                </button>
+                <button class="example-chip" type="button" data-example="Do not invite her to the project chat. She does not fit with us.">
+                  <strong>Example 2</strong>
+                  <span>Exclusion</span>
+                </button>
+                <button class="example-chip" type="button" data-example="Keep talking and I will hurt you after school.">
+                  <strong>Example 3</strong>
+                  <span>Threat</span>
+                </button>
+                <button class="example-chip" type="button" data-example="People from your religion do not belong in our chat.">
+                  <strong>Example 4</strong>
+                  <span>Hate Speech</span>
+                </button>
+                <button class="example-chip" type="button" data-example="I disagree with your idea, but thanks for explaining it clearly.">
+                  <strong>Example 5</strong>
+                  <span>Safe</span>
+                </button>
+              </div>
+            </section>
+            <div class="form-actions">
+              <button class="primary-button" type="submit">Analyze Text</button>
+              <a class="ghost-button" href="{{ url_for('dashboard') }}">View Logs</a>
+            </div>
+          </form>
+        </section>
+
+        {% if result %}
+          {% if result.danger_level == 'Critical' %}
+            <section class="critical-alert-banner" data-critical-alert="true" aria-live="assertive">
+              <span class="ping-dot"></span>
+              <div>
+                <strong>Critical Alert</strong>
+                <p>This message contains severe harm signals. Save the result and report it to a trusted adult or moderator.</p>
+              </div>
+            </section>
+          {% endif %}
+          <section class="result-card level-{{ result.danger_level | lower }}" aria-live="polite">
+            <div class="result-top">
+              <div>
+                <p class="eyebrow">Result</p>
+                <h2>{{ result.danger_level }} Risk</h2>
+                <p>{{ result.category_label }} - {{ 'Bullying detected' if result.is_bullying else 'Safe content' }}</p>
+              </div>
+              <div class="meter" style="--score: {{ result.danger_score }};">
+                <span>{{ result.danger_score }}%</span>
+              </div>
+            </div>
+            <div class="confidence-track" aria-label="Confidence">
+              <span style="width: {{ result.confidence }}%"></span>
+            </div>
+            <div class="result-grid">
+              <div>
+                <h3>Confidence</h3>
+                <p>{{ result.confidence }}%</p>
+              </div>
+              <div>
+                <h3>Category</h3>
+                <p>{{ result.category_label }}</p>
+              </div>
+              <div>
+                <h3>Flagged Keywords</h3>
+                {% if result.keywords %}
+                  <div class="keyword-row">
+                    {% for keyword in result.keywords %}
+                      <span>{{ keyword }}</span>
+                    {% endfor %}
+                  </div>
+                {% else %}
+                  <p>No strong harmful keywords found.</p>
+                {% endif %}
+              </div>
+            </div>
+            <div class="highlight-box">
+              <h3>Flagged Text View</h3>
+              <p>{{ result.highlighted_message|safe }}</p>
+            </div>
+            <p class="explanation">{{ result.explanation }}</p>
+            <div class="result-actions">
+              <textarea class="share-summary-source" hidden>{{ result.share_summary }}</textarea>
+              <button class="share-button" type="button">Share Result</button>
+            </div>
+          </section>
+        {% endif %}
+      {% endif %}
+
+      {% if page == 'dashboard' %}
+        <section class="page-head">
+          <div>
+            <p class="eyebrow">Live dashboard</p>
+            <h1>Analysis Intelligence</h1>
+          </div>
+          <div class="dashboard-actions">
+            <button class="primary-button" type="button" id="exportPdf" {% if not logs %}disabled{% endif %}>Export PDF</button>
+            <form method="post" action="{{ url_for('clear_history') }}">
+              <button class="ghost-button" type="submit">Clear</button>
+            </form>
+          </div>
+        </section>
+
+        <section class="stat-grid">
+          <article class="stat-card">
+            <span>Total Scans</span>
+            <strong>{{ stats.total }}</strong>
+          </article>
+          <article class="stat-card hot">
+            <span>Bullying Detected</span>
+            <strong>{{ stats.flagged }}</strong>
+          </article>
+          <article class="stat-card cool">
+            <span>Safe Messages</span>
+            <strong>{{ stats.safe }}</strong>
+          </article>
+          <article class="stat-card critical">
+            <span>Critical Alerts</span>
+            <strong>{{ stats.critical }}</strong>
+          </article>
+        </section>
+
+        <section class="chart-grid">
+          <article class="glass-panel">
+            <div class="panel-head">
+              <h2>Category Breakdown</h2>
+              <span class="panel-chip">Donut</span>
+            </div>
+            <canvas id="categoryChart" height="220"></canvas>
+          </article>
+          <article class="glass-panel">
+            <div class="panel-head">
+              <h2>Danger Level Distribution</h2>
+              <span class="panel-chip">Bars</span>
+            </div>
+            <canvas id="dangerChart" height="220"></canvas>
+          </article>
+        </section>
+
+        <section class="glass-panel">
+          <div class="panel-head">
+            <h2>Weekly Flagged Categories</h2>
+            <span class="panel-chip">7 days</span>
+          </div>
+          <div class="chart-wrap">
+            <canvas id="weeklyChart" height="280"></canvas>
+            <div class="chart-tooltip" id="chartTooltip" hidden></div>
+          </div>
+        </section>
+
+        <section class="log-section glass-panel">
+          <div class="panel-head">
+            <div>
+              <h2>Analyzed Messages</h2>
+              <p><span id="visibleCount">{{ logs|length }}</span> visible - {{ logs|length }} total</p>
+            </div>
+            <span class="active-filter" id="activeFilter">0 active filters</span>
+          </div>
+
+          <div class="quick-filter-row" aria-label="Quick filters">
+            <button class="quick-filter active" data-quick-filter="all" type="button">All</button>
+            <button class="quick-filter" data-quick-filter="bullying" type="button">Bullying</button>
+            <button class="quick-filter" data-quick-filter="safe" type="button">Safe</button>
+            {% for level in ['Critical', 'High', 'Medium', 'Low'] %}
+              <button class="quick-filter" data-quick-filter="{{ level }}" type="button">{{ level }}</button>
+            {% endfor %}
+          </div>
+
+          <div class="filter-panel" aria-label="Dashboard filters">
+            <div>
+              <span>Danger Level</span>
+              {% for level in ['Critical', 'High', 'Medium', 'Low', 'Safe'] %}
+                <button class="filter" data-filter-group="danger" data-filter-value="{{ level }}" type="button">{{ level }}</button>
+              {% endfor %}
+            </div>
+            <div>
+              <span>Bullying Type</span>
+              {% for category in ['Harassment', 'Hate Speech', 'Threat', 'Insult', 'Exclusion'] %}
+                <button class="filter" data-filter-group="category" data-filter-value="{{ category }}" type="button">{{ category }}</button>
+              {% endfor %}
+              <button class="clear-filters" id="clearFilters" type="button">Clear all</button>
+            </div>
+          </div>
+
+          <div class="message-list" id="messageList">
+            {% for item in logs %}
+              <details
+                class="message-row level-{{ item.danger_level | lower }}"
+                data-danger="{{ item.danger_level }}"
+                data-category="{{ item.category_label }}">
+                <summary>
+                  <span class="message-main">
+                    <strong>{{ item.message }}</strong>
+                    <small>{{ item.timestamp.strftime('%d %b %Y, %I:%M %p') }}</small>
+                  </span>
+                  <span class="tag">{{ item.category_label }}</span>
+                  <span class="danger-pill">{{ item.danger_level }}</span>
+                  <span class="mini-bar"><i style="width: {{ item.danger_score }}%"></i></span>
+                </summary>
+                <div class="message-details">
+                  <p class="full-message">{{ item.highlighted_message|safe }}</p>
+                  <p>{{ item.explanation }}</p>
+                  {% if item.keywords %}
+                    <div class="keyword-row">
+                      {% for keyword in item.keywords %}
+                        <span>{{ keyword }}</span>
+                      {% endfor %}
+                    </div>
+                  {% endif %}
+                  <p>Confidence: {{ item.confidence }}% - Danger score: {{ item.danger_score }}%</p>
+                </div>
+              </details>
+            {% else %}
+              <div class="empty-state">
+                <h3>No messages analyzed yet</h3>
+                <p>Start by analyzing text on the Detect page.</p>
+              </div>
+            {% endfor %}
+            <div class="empty-state filtered-empty" id="filteredEmpty" hidden>
+              <h3>No messages match current filters</h3>
+              <p>Clear filters or choose a broader combination.</p>
+            </div>
+          </div>
+        </section>
+      {% endif %}
+
+      {% if page == 'resources' %}
+        <section class="page-head">
+          <div>
+            <p class="eyebrow">Awareness resources</p>
+            <h1>India Support & Safety Hub.</h1>
+          </div>
+        </section>
+
+        <section class="resource-section helpline-section">
+          <div class="section-title">
+            <span class="section-icon danger-icon">CALL</span>
+            <div>
+              <h2>Indian Emergency Helplines</h2>
+              <p>Use these India-focused contacts for cyberbullying, emotional distress, depression, child safety, and immediate danger.</p>
+            </div>
+          </div>
+          <div class="helpline-grid">
+            <article class="helpline-card purple">
+              <span class="mini-icon">C</span>
+              <div>
+                <small>Childline India</small>
+                <strong>1098</strong>
+              </div>
+              <p>24x7 child support</p>
+            </article>
+            <article class="helpline-card red">
+              <span class="mini-icon">CY</span>
+              <div>
+                <small>Cyber Crime Helpline</small>
+                <strong>1930</strong>
+              </div>
+              <p>Govt. of India cybercrime reporting</p>
+            </article>
+            <article class="helpline-card cyan">
+              <span class="mini-icon">T</span>
+              <div>
+                <small>Tele-MANAS</small>
+                <strong>14416</strong>
+              </div>
+              <p>24x7 mental health support</p>
+            </article>
+            <article class="helpline-card cyan">
+              <span class="mini-icon">M</span>
+              <div>
+                <small>Manodarpan</small>
+                <strong>8448440632</strong>
+              </div>
+              <p>Student emotional support</p>
+            </article>
+            <article class="helpline-card pink">
+              <span class="mini-icon">A</span>
+              <div>
+                <small>AASRA</small>
+                <strong>022-27546669</strong>
+              </div>
+              <p>24x7 crisis listening</p>
+            </article>
+            <article class="helpline-card teal">
+              <span class="mini-icon">V</span>
+              <div>
+                <small>Vandrevala Foundation</small>
+                <strong>9999 666 555</strong>
+              </div>
+              <p>24x7 free counselling</p>
+            </article>
+            <article class="helpline-card yellow">
+              <span class="mini-icon">W</span>
+              <div>
+                <small>Women Helpline</small>
+                <strong>181</strong>
+              </div>
+              <p>24x7 women safety support</p>
+            </article>
+            <article class="helpline-card blue">
+              <span class="mini-icon">E</span>
+              <div>
+                <small>Emergency Response</small>
+                <strong>112</strong>
+              </div>
+              <p>Police, fire, ambulance</p>
+            </article>
+          </div>
+          <div class="resource-note">
+            <span>!</span>
+            <p>For immediate physical danger, call <strong>112</strong>. For cyberbullying, online harassment, threats, or cybercrime, report on <a href="https://cybercrime.gov.in/" target="_blank" rel="noreferrer">cybercrime.gov.in</a> or call <strong>1930</strong>.</p>
+          </div>
+        </section>
+
+        <section class="resource-section">
+          <div class="section-title compact">
+            <div>
+              <h2>Indian Support Organizations</h2>
+              <p>Trusted India-focused places for reporting, counselling, child safety, and online protection.</p>
+            </div>
+          </div>
+          <div class="support-grid">
+            <a class="support-card teal" href="https://icallhelpline.org/" target="_blank" rel="noreferrer">
+              <span class="external-mark">Open</span>
+              <h3>iCALL - TISS Psychosocial Helpline</h3>
+              <small>Free Counselling</small>
+              <p>Telephone and email-based counselling for stress, anxiety, depression, cyberbullying impact, and emotional distress.</p>
+            </a>
+            <a class="support-card teal" href="https://balrakshabharat.org/child-protection/" target="_blank" rel="noreferrer">
+              <span class="external-mark">Open</span>
+              <h3>Bal Raksha Bharat</h3>
+              <small>Child Safety</small>
+              <p>Works on child protection, psychosocial wellbeing, and online safety programmes for children in India.</p>
+            </a>
+            <a class="support-card purple" href="https://www.india.gov.in/directory/helpline" target="_blank" rel="noreferrer">
+              <span class="external-mark">Open</span>
+              <h3>Childline India - 1098</h3>
+              <small>Government Helpline</small>
+              <p>A national helpline for children in difficult situations, listed by the National Portal of India.</p>
+            </a>
+            <a class="support-card red" href="https://cybercrime.gov.in/" target="_blank" rel="noreferrer">
+              <span class="external-mark">Open</span>
+              <h3>National Cyber Crime Reporting Portal</h3>
+              <small>Report Cybercrime</small>
+              <p>Official Government of India portal for cybercrime, online harassment, bullying, threats, and related complaints.</p>
+            </a>
+            <a class="support-card orange" href="https://www.vandrevalafoundation.com/free-counseling/contact-us" target="_blank" rel="noreferrer">
+              <span class="external-mark">Open</span>
+              <h3>Vandrevala Foundation</h3>
+              <small>Mental Health 24x7</small>
+              <p>Provides free mental health support through phone and WhatsApp counselling across India.</p>
+            </a>
+            <a class="support-card pink" href="https://aasra.info/helpline.html" target="_blank" rel="noreferrer">
+              <span class="external-mark">Open</span>
+              <h3>AASRA - Suicide Prevention</h3>
+              <small>Crisis Support</small>
+              <p>Offers 24x7 confidential listening support and maintains an India helpline directory.</p>
+            </a>
+          </div>
+        </section>
+
+        <section class="resource-section">
+          <div class="section-title compact">
+            <div>
+              <h2>Stay Safe Online</h2>
+              <p>Practical steps tailored for Indian students and youth to protect yourself and others.</p>
+            </div>
+          </div>
+          <div class="safety-grid">
+            <article class="safety-card cyan">
+              <span class="safety-icon">S</span>
+              <div>
+                <h3>Do Not Respond to Bullies</h3>
+                <p>Responding often escalates the situation. Block, report, and step back before things get worse.</p>
+              </div>
+            </article>
+            <article class="safety-card purple">
+              <span class="safety-icon">E</span>
+              <div>
+                <h3>Save Screenshots as Evidence</h3>
+                <p>Screenshot messages, usernames, links, dates, and threats before blocking or deleting anything.</p>
+              </div>
+            </article>
+            <article class="safety-card teal">
+              <span class="safety-icon">T</span>
+              <div>
+                <h3>Tell a Trusted Adult</h3>
+                <p>Talk to a parent, teacher, school counsellor, elder sibling, or class mentor. You do not have to handle it alone.</p>
+              </div>
+            </article>
+            <article class="safety-card orange">
+              <span class="safety-icon">R</span>
+              <div>
+                <h3>Report on Every Platform</h3>
+                <p>Instagram, WhatsApp, Snapchat, YouTube, and gaming platforms have report tools. Use them early.</p>
+              </div>
+            </article>
+            <article class="safety-card pink">
+              <span class="safety-icon">M</span>
+              <div>
+                <h3>Protect Your Mental Health</h3>
+                <p>Take breaks from social media, speak to someone you trust, and call a helpline if you feel overwhelmed.</p>
+              </div>
+            </article>
+            <article class="safety-card yellow">
+              <span class="safety-icon">P</span>
+              <div>
+                <h3>Tighten Privacy Settings</h3>
+                <p>Set posts to friends only, disable public tagging, review who can message you, and avoid sharing personal details.</p>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section class="resource-section">
+          <div class="section-title compact">
+            <div>
+              <h2>Understanding Cyberbullying</h2>
+              <p>Cyberbullying can happen through WhatsApp, Instagram, Snapchat, gaming chats, school groups, and public comment sections.</p>
+            </div>
+          </div>
+          <div class="category-education-grid">
+            <article class="category-education-card purple">
+              <span>H</span>
+              <div>
+                <h3>Harassment</h3>
+                <p>Repeated targeted attacks, unwanted messages, stalking, public shaming, or pressure campaigns.</p>
+              </div>
+            </article>
+            <article class="category-education-card red">
+              <span>H</span>
+              <div>
+                <h3>Hate Speech</h3>
+                <p>Content attacking someone based on caste, religion, gender, language, region, identity, or community.</p>
+              </div>
+            </article>
+            <article class="category-education-card orange">
+              <span>T</span>
+              <div>
+                <h3>Threats</h3>
+                <p>Direct or implied intent to cause physical harm, emotional harm, humiliation, or fear.</p>
+              </div>
+            </article>
+            <article class="category-education-card yellow">
+              <span>I</span>
+              <div>
+                <h3>Insults</h3>
+                <p>Name-calling, demeaning language, mockery, or personal attacks designed to shame someone.</p>
+              </div>
+            </article>
+            <article class="category-education-card pink">
+              <span>E</span>
+              <div>
+                <h3>Exclusion</h3>
+                <p>Deliberately leaving someone out of groups, chats, teams, or online communities to isolate them.</p>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section class="resource-section quiz-section">
+          <div class="section-title compact">
+            <div>
+              <h2>Test Your Awareness</h2>
+              <p>Answer 10 questions about cyberbullying, how to respond, and India-specific support resources. Get instant feedback on every answer.</p>
+            </div>
+          </div>
+          <div class="quiz-card" id="quizCard">
+            <div class="quiz-start" id="quizStart">
+              <span class="quiz-icon">Q</span>
+              <h3>Cyberbullying Awareness Quiz</h3>
+              <p>Test your knowledge with <strong>10 questions</strong> about cyberbullying, safe responses, and India-specific help.</p>
+              <button class="primary-button" type="button" id="startQuiz">Start Quiz</button>
+            </div>
+            <div class="quiz-play" id="quizPlay" hidden>
+              <div class="quiz-progress">
+                <span id="quizCounter">Question 1 of 10</span>
+                <strong id="quizScore">Score: 0</strong>
+              </div>
+              <div class="quiz-bar"><span id="quizBar"></span></div>
+              <h3 id="quizQuestion"></h3>
+              <div class="quiz-options" id="quizOptions"></div>
+              <p class="quiz-feedback" id="quizFeedback" hidden></p>
+              <button class="primary-button" type="button" id="nextQuiz" hidden>Next Question</button>
+            </div>
+            <div class="quiz-result" id="quizResult" hidden>
+              <span class="quiz-icon">OK</span>
+              <h3 id="quizFinalTitle">Quiz Complete</h3>
+              <p id="quizFinalText"></p>
+              <button class="primary-button" type="button" id="restartQuiz">Try Again</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="resource-section incident-section">
+          <div class="section-title compact">
+            <div>
+              <h2>School Incident Report</h2>
+              <p>Fill out this form and print it to hand directly to your teacher or school counselor. No data is saved or submitted - it is purely for printing.</p>
+            </div>
+          </div>
+          <form class="incident-report-card" id="incidentForm">
+            <div class="incident-head">
+              <span class="section-icon">DOC</span>
+              <div>
+                <h3>School Incident Report Form</h3>
+                <p>Fill in, then click Print to hand to your teacher or counselor.</p>
+              </div>
+            </div>
+            <div class="incident-body">
+              <label>
+                Student Name <span>(optional)</span>
+                <input type="text" name="student_name" placeholder="Your full name">
+              </label>
+              <label>
+                Class / Grade <span>(optional)</span>
+                <input type="text" name="class_grade" placeholder="e.g. Class 9 - A">
+              </label>
+              <label>
+                Date of Incident <span>(optional)</span>
+                <input type="date" name="incident_date">
+              </label>
+              <div class="form-group wide">
+                <p>Type of Cyberbullying <span>(select all that apply)</span></p>
+                <div class="report-chip-row">
+                  <label><input type="checkbox" name="type" value="Harassment"> Harassment</label>
+                  <label><input type="checkbox" name="type" value="Hate Speech"> Hate Speech</label>
+                  <label><input type="checkbox" name="type" value="Threat"> Threat</label>
+                  <label><input type="checkbox" name="type" value="Insult"> Insult</label>
+                  <label><input type="checkbox" name="type" value="Exclusion"> Exclusion</label>
+                </div>
+              </div>
+              <div class="form-group wide">
+                <p>Platform Where It Happened</p>
+                <div class="report-chip-row">
+                  <label><input type="checkbox" name="platform" value="WhatsApp"> WhatsApp</label>
+                  <label><input type="checkbox" name="platform" value="Instagram"> Instagram</label>
+                  <label><input type="checkbox" name="platform" value="Snapchat"> Snapchat</label>
+                  <label><input type="checkbox" name="platform" value="YouTube"> YouTube</label>
+                  <label><input type="checkbox" name="platform" value="Online Gaming"> Online Gaming</label>
+                  <label><input type="checkbox" name="platform" value="Other"> Other</label>
+                </div>
+              </div>
+              <label class="wide">
+                Description of the Incident <span class="required">*</span>
+                <textarea name="description" rows="5" placeholder="Describe what happened in detail - what was said or done, when, and how it made you feel..."></textarea>
+              </label>
+              <label class="wide">
+                Name of Person Responsible <span>(optional)</span>
+                <input type="text" name="responsible" placeholder="Leave blank if unknown">
+              </label>
+              <div class="form-group wide">
+                <p>Did You Save Evidence? <span>(screenshots/recordings)</span></p>
+                <div class="report-chip-row">
+                  <label><input type="radio" name="evidence" value="Yes"> Yes</label>
+                  <label><input type="radio" name="evidence" value="No"> No</label>
+                </div>
+              </div>
+              <label class="wide">
+                Any Witnesses? <span>(optional)</span>
+                <input type="text" name="witnesses" placeholder="Names of classmates who saw or know about the incident">
+              </label>
+              <div class="incident-actions wide">
+                <button class="primary-button" type="button" id="printIncident">Print Form</button>
+                <button class="ghost-button" type="reset">Clear Form</button>
+              </div>
+            </div>
+          </form>
+        </section>
+      {% endif %}
+    </main>
+
+    <div class="toast" id="toast" role="status" aria-live="polite" hidden>Copied result summary</div>
+
+    <script>
+      window.cyberguardData = {
+        categoryCounts: {{ category_counts | tojson }},
+        dangerCounts: {{ danger_counts | tojson }},
+        weekly: {{ weekly | tojson }},
+        stats: {{ stats | tojson }},
+        logs: {{ report_logs | tojson }},
+        reportDate: {{ report_date | tojson }}
+      };
+    </script>
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+  </body>
+</html>

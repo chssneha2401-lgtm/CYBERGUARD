@@ -1,0 +1,282 @@
+[
+  {
+    "id": 13,
+    "message": "Keep talking and I will hurt you after school.",
+    "timestamp": "2026-05-30T16:00:13.958824",
+    "label": "bullying",
+    "category": "threat",
+    "category_label": "Threat",
+    "danger_level": "High",
+    "confidence": 82.77,
+    "danger_score": 82.77,
+    "scores": {
+      "bullying": 0.8277469029610753,
+      "non_bullying": 0.17225309703892455
+    },
+    "keywords": [
+      "hurt",
+      "talking"
+    ],
+    "explanation": "High risk: the message matches threat patterns with a bullying score of 82.8%. Flagged signals include hurt, talking.",
+    "is_bullying": true,
+    "share_summary": "CyberGuard AI Analysis\nCategory: Threat\nDanger Level: High\nConfidence: 82.77%\nFlagged Words: hurt, talking\nTimestamp: 30 May 2026, 04:00 PM\nExplanation: High risk: the message matches threat patterns with a bullying score of 82.8%. Flagged signals include hurt, talking."
+  },
+  {
+    "id": 12,
+    "message": "Do not invite her to the project chat. She does not fit with us.",
+    "timestamp": "2026-05-30T15:59:59.070179",
+    "label": "non_bullying",
+    "category": "safe",
+    "category_label": "Safe",
+    "danger_level": "Safe",
+    "confidence": 98.69,
+    "danger_score": 1.31,
+    "scores": {
+      "bullying": 0.013111742992163052,
+      "non_bullying": 0.986888257007837
+    },
+    "keywords": [],
+    "explanation": "The message appears respectful or non-abusive based on the model score and keyword scan.",
+    "is_bullying": false,
+    "share_summary": "CyberGuard AI Analysis\nCategory: Safe\nDanger Level: Safe\nConfidence: 98.69%\nFlagged Words: None\nTimestamp: 30 May 2026, 03:59 PM\nExplanation: The message appears respectful or non-abusive based on the model score and keyword scan."
+  },
+  {
+    "id": 11,
+    "message": "You are such a dumb loser, nobody wants your opinion.",
+    "timestamp": "2026-05-30T11:55:21.373090",
+    "label": "bullying",
+    "category": "harassment",
+    "category_label": "Harassment",
+    "danger_level": "Critical",
+    "confidence": 99.71,
+    "danger_score": 99.71,
+    "scores": {
+      "bullying": 0.9970652983891953,
+      "non_bullying": 0.002934701610804616
+    },
+    "keywords": [
+      "loser",
+      "nobody",
+      "dumb",
+      "wants"
+    ],
+    "explanation": "Critical risk: the message matches harassment patterns with a bullying score of 99.7%. Flagged signals include loser, nobody, dumb, wants.",
+    "is_bullying": true,
+    "share_summary": "CyberGuard AI Analysis\nCategory: Harassment\nDanger Level: Critical\nConfidence: 99.71%\nFlagged Words: loser, nobody, dumb, wants\nTimestamp: 30 May 2026, 11:55 AM\nExplanation: Critical risk: the message matches harassment patterns with a bullying score of 99.7%. Flagged signals include loser, nobody, dumb, wants."
+  },
+  {
+    "id": 1,
+    "label": "bullying",
+    "scores": {
+      "bullying": 0.9640000000000001,
+      "non_bullying": 0.03599999999999992
+    },
+    "is_bullying": true,
+    "timestamp": "2026-05-30T10:47:13.323939",
+    "message": "If you show up in the class group again, I will make sure everyone turns against you.",
+    "category": "harassment",
+    "category_label": "Harassment",
+    "danger_level": "Critical",
+    "confidence": 96.4,
+    "danger_score": 96.4,
+    "keywords": [
+      "everyone",
+      "turns",
+      "against"
+    ],
+    "explanation": "Critical risk: the message shows direct harassment and coordinated intimidation toward a student.",
+    "share_summary": "CyberGuard AI Analysis\nCategory: Harassment\nDanger Level: Critical\nConfidence: 96.4%\nFlagged Words: everyone, turns, against\nTimestamp: 30 May 2026, 10:47 AM\nExplanation: Critical risk: the message shows direct harassment and coordinated intimidation toward a student."
+  },
+  {
+    "id": 2,
+    "label": "bullying",
+    "scores": {
+      "bullying": 0.948,
+      "non_bullying": 0.052000000000000046
+    },
+    "is_bullying": true,
+    "timestamp": "2026-05-29T09:47:13.323939",
+    "message": "People from your religion do not belong in our chat.",
+    "category": "hate_speech",
+    "category_label": "Hate Speech",
+    "danger_level": "Critical",
+    "confidence": 94.8,
+    "danger_score": 94.8,
+    "keywords": [
+      "religion",
+      "belong"
+    ],
+    "explanation": "Critical risk: the message targets identity and excludes someone based on religion.",
+    "share_summary": "CyberGuard AI Analysis\nCategory: Hate Speech\nDanger Level: Critical\nConfidence: 94.8%\nFlagged Words: religion, belong\nTimestamp: 29 May 2026, 09:47 AM\nExplanation: Critical risk: the message targets identity and excludes someone based on religion."
+  },
+  {
+    "id": 3,
+    "label": "bullying",
+    "scores": {
+      "bullying": 0.892,
+      "non_bullying": 0.10799999999999998
+    },
+    "is_bullying": true,
+    "timestamp": "2026-05-28T08:47:13.323939",
+    "message": "Keep talking and I will hurt you after school.",
+    "category": "threat",
+    "category_label": "Threat",
+    "danger_level": "High",
+    "confidence": 89.2,
+    "danger_score": 89.2,
+    "keywords": [
+      "hurt",
+      "after school"
+    ],
+    "explanation": "High risk: the message contains a direct threat of physical harm.",
+    "share_summary": "CyberGuard AI Analysis\nCategory: Threat\nDanger Level: High\nConfidence: 89.2%\nFlagged Words: hurt, after school\nTimestamp: 28 May 2026, 08:47 AM\nExplanation: High risk: the message contains a direct threat of physical harm."
+  },
+  {
+    "id": 4,
+    "label": "bullying",
+    "scores": {
+      "bullying": 0.867,
+      "non_bullying": 0.133
+    },
+    "is_bullying": true,
+    "timestamp": "2026-05-27T07:47:13.323939",
+    "message": "You are such a dumb loser, nobody wants your opinion.",
+    "category": "insult",
+    "category_label": "Insult",
+    "danger_level": "High",
+    "confidence": 86.7,
+    "danger_score": 86.7,
+    "keywords": [
+      "dumb",
+      "loser",
+      "nobody"
+    ],
+    "explanation": "High risk: the message uses repeated personal insults and rejection language.",
+    "share_summary": "CyberGuard AI Analysis\nCategory: Insult\nDanger Level: High\nConfidence: 86.7%\nFlagged Words: dumb, loser, nobody\nTimestamp: 27 May 2026, 07:47 AM\nExplanation: High risk: the message uses repeated personal insults and rejection language."
+  },
+  {
+    "id": 5,
+    "label": "bullying",
+    "scores": {
+      "bullying": 0.735,
+      "non_bullying": 0.265
+    },
+    "is_bullying": true,
+    "timestamp": "2026-05-26T06:47:13.323939",
+    "message": "Do not invite her to the project chat. She does not fit with us.",
+    "category": "exclusion",
+    "category_label": "Exclusion",
+    "danger_level": "Medium",
+    "confidence": 73.5,
+    "danger_score": 73.5,
+    "keywords": [
+      "invite",
+      "fit"
+    ],
+    "explanation": "Medium risk: the message encourages exclusion from a shared school activity.",
+    "share_summary": "CyberGuard AI Analysis\nCategory: Exclusion\nDanger Level: Medium\nConfidence: 73.5%\nFlagged Words: invite, fit\nTimestamp: 26 May 2026, 06:47 AM\nExplanation: Medium risk: the message encourages exclusion from a shared school activity."
+  },
+  {
+    "id": 6,
+    "label": "bullying",
+    "scores": {
+      "bullying": 0.6809999999999999,
+      "non_bullying": 0.31900000000000006
+    },
+    "is_bullying": true,
+    "timestamp": "2026-05-25T05:47:13.323939",
+    "message": "Your post was embarrassing and everyone probably laughed at it.",
+    "category": "harassment",
+    "category_label": "Harassment",
+    "danger_level": "Medium",
+    "confidence": 68.1,
+    "danger_score": 68.1,
+    "keywords": [
+      "embarrassing",
+      "laughed"
+    ],
+    "explanation": "Medium risk: the message attempts to shame the student publicly.",
+    "share_summary": "CyberGuard AI Analysis\nCategory: Harassment\nDanger Level: Medium\nConfidence: 68.1%\nFlagged Words: embarrassing, laughed\nTimestamp: 25 May 2026, 05:47 AM\nExplanation: Medium risk: the message attempts to shame the student publicly."
+  },
+  {
+    "id": 7,
+    "label": "bullying",
+    "scores": {
+      "bullying": 0.583,
+      "non_bullying": 0.41700000000000004
+    },
+    "is_bullying": true,
+    "timestamp": "2026-05-24T04:47:13.323939",
+    "message": "That answer was kind of stupid, but the rest of your work is okay.",
+    "category": "insult",
+    "category_label": "Insult",
+    "danger_level": "Low",
+    "confidence": 58.3,
+    "danger_score": 58.3,
+    "keywords": [
+      "stupid"
+    ],
+    "explanation": "Low risk: the message includes mild insulting language but not sustained bullying.",
+    "share_summary": "CyberGuard AI Analysis\nCategory: Insult\nDanger Level: Low\nConfidence: 58.3%\nFlagged Words: stupid\nTimestamp: 24 May 2026, 04:47 AM\nExplanation: Low risk: the message includes mild insulting language but not sustained bullying."
+  },
+  {
+    "id": 8,
+    "label": "bullying",
+    "scores": {
+      "bullying": 0.5489999999999999,
+      "non_bullying": 0.45100000000000007
+    },
+    "is_bullying": true,
+    "timestamp": "2026-05-30T03:47:13.323939",
+    "message": "Let's make a separate group without him for now.",
+    "category": "exclusion",
+    "category_label": "Exclusion",
+    "danger_level": "Low",
+    "confidence": 54.9,
+    "danger_score": 54.9,
+    "keywords": [
+      "separate",
+      "without"
+    ],
+    "explanation": "Low risk: the message may signal exclusion, though context could change the interpretation.",
+    "share_summary": "CyberGuard AI Analysis\nCategory: Exclusion\nDanger Level: Low\nConfidence: 54.9%\nFlagged Words: separate, without\nTimestamp: 30 May 2026, 03:47 AM\nExplanation: Low risk: the message may signal exclusion, though context could change the interpretation."
+  },
+  {
+    "id": 9,
+    "label": "non_bullying",
+    "scores": {
+      "bullying": 0.084,
+      "non_bullying": 0.916
+    },
+    "is_bullying": false,
+    "timestamp": "2026-05-29T02:47:13.323939",
+    "message": "I disagree with your idea, but thanks for explaining it clearly.",
+    "category": "safe",
+    "category_label": "Safe",
+    "danger_level": "Safe",
+    "confidence": 91.6,
+    "danger_score": 8.4,
+    "keywords": [],
+    "explanation": "Safe content: the message disagrees respectfully without bullying indicators.",
+    "share_summary": "CyberGuard AI Analysis\nCategory: Safe\nDanger Level: Safe\nConfidence: 91.6%\nFlagged Words: None\nTimestamp: 29 May 2026, 02:47 AM\nExplanation: Safe content: the message disagrees respectfully without bullying indicators."
+  },
+  {
+    "id": 10,
+    "label": "non_bullying",
+    "scores": {
+      "bullying": 0.111,
+      "non_bullying": 0.889
+    },
+    "is_bullying": false,
+    "timestamp": "2026-05-28T01:47:13.323939",
+    "message": "Please stop posting personal comments and keep the discussion respectful.",
+    "category": "safe",
+    "category_label": "Safe",
+    "danger_level": "Safe",
+    "confidence": 88.9,
+    "danger_score": 11.1,
+    "keywords": [],
+    "explanation": "Safe content: the message sets a boundary and asks for respectful discussion.",
+    "share_summary": "CyberGuard AI Analysis\nCategory: Safe\nDanger Level: Safe\nConfidence: 88.9%\nFlagged Words: None\nTimestamp: 28 May 2026, 01:47 AM\nExplanation: Safe content: the message sets a boundary and asks for respectful discussion."
+  }
+]
