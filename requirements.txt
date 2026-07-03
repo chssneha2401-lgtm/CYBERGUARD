@@ -1,1 +1,6 @@
 Flask==3.1.0
+pypdf==5.6.0
+python-docx==1.1.2
+Pillow==11.2.1
+pytesseract==0.3.13
+SpeechRecognition==3.14.3

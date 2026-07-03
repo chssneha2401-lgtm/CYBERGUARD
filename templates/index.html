@@ -42,18 +42,25 @@
             </div>
           </div>
 
-          <form method="post" action="{{ url_for('analyze') }}" class="analyzer-card" novalidate>
+          <form method="post" action="{{ url_for('analyze') }}" class="analyzer-card" enctype="multipart/form-data" novalidate>
             <div class="panel-head">
               <div>
                 <p class="eyebrow">Analyze</p>
-                <h2>Message Scanner</h2>
+                <h2>Multi-Source Scanner</h2>
               </div>
               <span class="ai-badge">G2.5</span>
             </div>
-            <label for="message">Comment or message</label>
+            <div class="source-tabs" role="tablist" aria-label="Analysis source">
+              <button class="source-tab active" type="button" data-source="text">Text</button>
+              <button class="source-tab" type="button" data-source="url">Link</button>
+              <button class="source-tab" type="button" data-source="file">File / Media</button>
+            </div>
+            <input type="hidden" name="source_type" id="sourceType" value="{{ selected_source|default('text') }}">
             {% if error %}
               <p class="alert-message">{{ error }}</p>
             {% endif %}
+            <div class="source-panel active" data-source-panel="text">
+            <label for="message">Comment or message</label>
             <textarea
               id="message"
               name="message"
@@ -64,6 +71,19 @@
             <div class="input-help" id="messageHelp">
               <span>Maximum 5,000 characters</span>
               <span><strong id="charCount">{{ message|length }}</strong>/5000</span>
+            </div>
+            </div>
+            <div class="source-panel" data-source-panel="url" hidden>
+              <label for="url">Public webpage URL</label>
+              <input id="url" name="url" type="url" placeholder="https://example.com/post">
+              <p class="source-help">Visible page text will be extracted and analyzed.</p>
+            </div>
+            <div class="source-panel" data-source-panel="file" hidden>
+              <label class="upload-zone" for="file">
+                <strong>Choose a document, image, audio, or video</strong>
+                <span id="fileName">PDF, DOCX, TXT, JPG, PNG, MP3, WAV, MP4 and more (max 25 MB)</span>
+              </label>
+              <input class="file-input" id="file" name="file" type="file" accept=".pdf,.docx,.txt,.csv,.md,.png,.jpg,.jpeg,.webp,.bmp,.wav,.mp3,.m4a,.ogg,.mp4,.mov,.webm,.mkv">
             </div>
             <section class="example-panel" aria-label="Example messages">
               <div class="example-head">
@@ -94,7 +114,7 @@
               </div>
             </section>
             <div class="form-actions">
-              <button class="primary-button" type="submit">Analyze Text</button>
+              <button class="primary-button" id="analyzeButton" type="submit">Analyze Text</button>
               <a class="ghost-button" href="{{ url_for('dashboard') }}">View Logs</a>
             </div>
           </form>
@@ -124,6 +144,9 @@
             <div class="confidence-track" aria-label="Confidence">
               <span style="width: {{ result.confidence }}%"></span>
             </div>
+            {% if result.source_name %}
+              <p class="source-result"><strong>Source:</strong> {{ result.source_name }} &middot; {{ result.source_type|title }}</p>
+            {% endif %}
             <div class="result-grid">
               <div>
                 <h3>Confidence</h3>

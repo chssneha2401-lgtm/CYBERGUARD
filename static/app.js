@@ -362,6 +362,40 @@ function setupTextCounter() {
   });
 }
 
+function setupSourcePicker() {
+  const typeInput = document.getElementById("sourceType");
+  const tabs = Array.from(document.querySelectorAll(".source-tab"));
+  const panels = Array.from(document.querySelectorAll("[data-source-panel]"));
+  const analyzeButton = document.getElementById("analyzeButton");
+  const fileInput = document.getElementById("file");
+  const fileName = document.getElementById("fileName");
+  if (!typeInput || !tabs.length) return;
+
+  const labels = { text: "Analyze Text", url: "Analyze Link", file: "Analyze File" };
+  function selectSource(source) {
+    typeInput.value = source;
+    tabs.forEach((tab) => {
+      const selected = tab.dataset.source === source;
+      tab.classList.toggle("active", selected);
+      tab.setAttribute("aria-selected", String(selected));
+    });
+    panels.forEach((panel) => {
+      const selected = panel.dataset.sourcePanel === source;
+      panel.hidden = !selected;
+      panel.classList.toggle("active", selected);
+    });
+    if (analyzeButton) analyzeButton.textContent = labels[source] || "Analyze";
+  }
+
+  tabs.forEach((tab) => tab.addEventListener("click", () => selectSource(tab.dataset.source)));
+  if (fileInput && fileName) {
+    fileInput.addEventListener("change", () => {
+      fileName.textContent = fileInput.files[0]?.name || "No file selected";
+    });
+  }
+  selectSource(typeInput.value || "text");
+}
+
 function setupExampleChips() {
   const textarea = document.getElementById("message");
   const counter = document.getElementById("charCount");
@@ -614,6 +648,7 @@ setupWeeklyTooltip();
 setupFilters();
 exportPdf();
 setupTextCounter();
+setupSourcePicker();
 setupExampleChips();
 setupCriticalAlert();
 setupShareButtons();

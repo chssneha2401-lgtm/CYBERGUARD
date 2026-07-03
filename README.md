@@ -10,6 +10,9 @@ A simple Machine Learning and NLP web application that classifies user-entered t
 - Confidence score and model score breakdown
 - Clean Flask web interface
 - Starter dataset included in `data/messages.csv`
+- URL text extraction with private-network protection
+- PDF, DOCX, TXT, CSV, and Markdown scanning
+- Image OCR and audio/video speech transcription
 
 ## Run the App
 
@@ -22,6 +25,8 @@ Then open:
 ```text
 http://127.0.0.1:5000
 ```
+
+Image scanning requires [Tesseract OCR](https://github.com/tesseract-ocr/tesseract). Audio and video scanning require `ffmpeg`; speech recognition also needs an internet connection.
 
 ## Project Structure
 

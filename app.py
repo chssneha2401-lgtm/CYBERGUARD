@@ -11,6 +11,7 @@ from pathlib import Path
 from flask import Flask, jsonify, redirect, render_template, request, url_for
 from markupsafe import Markup, escape
 
+from content_extractor import ExtractionError, extract_file, extract_url
 from model import CATEGORY_ORDER, build_classifier
 
 
@@ -22,6 +23,8 @@ SUPABASE_URL = os.getenv("SUPABASE_URL", "").rstrip("/")
 SUPABASE_SECRET_KEY = os.getenv("SUPABASE_SECRET_KEY") or os.getenv("SUPABASE_SERVICE_ROLE_KEY")
 SUPABASE_TABLE = "analysis_history"
 MAX_TEXT_LENGTH = 5000
+MAX_UPLOAD_BYTES = 25 * 1024 * 1024
+app.config["MAX_CONTENT_LENGTH"] = MAX_UPLOAD_BYTES
 
 
 SAMPLE_ANALYSES = [
@@ -390,12 +393,14 @@ def highlight_keywords(message, keywords):
 analysis_log = load_history()
 
 
-def create_analysis(message):
+def create_analysis(message, source_type="text", source_name="Typed text"):
     result = classifier.predict(message)
     entry = {
         "id": max([item.get("id", 0) for item in analysis_log], default=0) + 1,
         "message": message,
         "timestamp": datetime.now(),
+        "source_type": source_type,
+        "source_name": source_name,
         **result,
     }
     hydrate_entry(entry)
@@ -494,18 +499,34 @@ def detect():
 
 @app.route("/analyze", methods=["POST"])
 def analyze():
+    source_type = request.form.get("source_type", "text").strip()
     message = request.form.get("message", "").strip()
+    source_name = "Typed text"
     result = None
     error = None
-    if not message:
-        error = "Please enter text to analyze"
-    elif len(message) > MAX_TEXT_LENGTH:
-        error = "Text exceeds maximum length. Please shorten your input."
-    else:
-        try:
-            result = create_analysis(message)
-        except Exception:
-            error = "Analysis failed. Please try again."
+    try:
+        if source_type == "url":
+            source_name = request.form.get("url", "").strip()
+            message = extract_url(source_name)
+        elif source_type == "file":
+            upload = request.files.get("file")
+            if not upload or not upload.filename:
+                raise ExtractionError("Choose a document, image, audio, or video file.")
+            source_name = Path(upload.filename).name
+            message = extract_file(upload, Path(source_name).suffix)
+        elif source_type != "text":
+            raise ExtractionError("Choose a valid analysis source.")
+        elif not message:
+            raise ExtractionError("Please enter text to analyze.")
+
+        if len(message) > MAX_TEXT_LENGTH:
+            message = message[:MAX_TEXT_LENGTH]
+        result = create_analysis(message, source_type, source_name)
+    except ExtractionError as extraction_error:
+        error = str(extraction_error)
+    except Exception:
+        app.logger.exception("Analysis failed")
+        error = "Analysis failed. Check the file and required extraction tools, then try again."
 
     return render_template(
         "index.html",
@@ -513,6 +534,7 @@ def analyze():
         message=message,
         result=result,
         error=error,
+        selected_source=source_type,
         **dashboard_context(),
     )
 

@@ -378,6 +378,70 @@ button:disabled:hover {
   font-size: 0.86rem;
 }
 
+.source-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  padding: 5px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: rgba(2, 8, 23, 0.58);
+}
+
+.source-tab {
+  min-height: 40px;
+  border: 0;
+  border-radius: 7px;
+  color: var(--muted);
+  font-weight: 900;
+  background: transparent;
+  cursor: pointer;
+}
+
+.source-tab.active {
+  color: #06111f;
+  background: linear-gradient(135deg, var(--teal), var(--blue));
+}
+
+.source-panel { display: grid; gap: 10px; }
+.source-panel[hidden] { display: none; }
+
+.source-panel input[type="url"] {
+  width: 100%;
+  min-height: 52px;
+  border: 1px solid rgba(56, 189, 248, 0.32);
+  border-radius: 8px;
+  padding: 13px 15px;
+  color: var(--text);
+  background: rgba(2, 8, 23, 0.76);
+}
+
+.source-help, .upload-zone span { color: var(--muted); font-size: 0.86rem; }
+.source-help { margin: 0; }
+
+.upload-zone {
+  min-height: 150px;
+  display: grid;
+  place-content: center;
+  gap: 10px;
+  border: 2px dashed rgba(45, 212, 191, 0.42);
+  border-radius: 10px;
+  padding: 24px;
+  text-align: center;
+  cursor: pointer;
+  background: rgba(45, 212, 191, 0.06);
+}
+
+.file-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+}
+
+.source-result { margin: 0 0 16px; color: var(--muted); overflow-wrap: anywhere; }
+
 .example-panel {
   display: grid;
   gap: 10px;
@@ -1201,6 +1265,10 @@ canvas {
   justify-items: center;
   gap: 14px;
   text-align: center;
+}
+
+.quiz-card [hidden] {
+  display: none;
 }
 
 .quiz-icon {
