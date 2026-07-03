@@ -513,7 +513,12 @@ def analyze():
             if not upload or not upload.filename:
                 raise ExtractionError("Choose a document, image, audio, or video file.")
             source_name = Path(upload.filename).name
-            message = extract_file(upload, Path(source_name).suffix)
+            suffix = Path(source_name).suffix.lower()
+            browser_ocr_text = request.form.get("extracted_text", "").strip()
+            if suffix in {".png", ".jpg", ".jpeg", ".webp", ".bmp"} and browser_ocr_text:
+                message = browser_ocr_text
+            else:
+                message = extract_file(upload, suffix)
         elif source_type != "text":
             raise ExtractionError("Choose a valid analysis source.")
         elif not message:
