@@ -363,12 +363,14 @@ function setupTextCounter() {
 }
 
 function setupSourcePicker() {
+  const form = document.querySelector("form.analyzer-card");
   const typeInput = document.getElementById("sourceType");
   const tabs = Array.from(document.querySelectorAll(".source-tab"));
   const panels = Array.from(document.querySelectorAll("[data-source-panel]"));
   const analyzeButton = document.getElementById("analyzeButton");
   const fileInput = document.getElementById("file");
   const fileName = document.getElementById("fileName");
+  const extractedText = document.getElementById("extractedText");
   if (!typeInput || !tabs.length) return;
 
   const labels = { text: "Analyze Text", url: "Analyze Link", file: "Analyze File" };
@@ -391,6 +393,49 @@ function setupSourcePicker() {
   if (fileInput && fileName) {
     fileInput.addEventListener("change", () => {
       fileName.textContent = fileInput.files[0]?.name || "No file selected";
+      if (extractedText) extractedText.value = "";
+    });
+  }
+
+  if (form && fileInput && extractedText && analyzeButton) {
+    let submittingAfterOcr = false;
+    form.addEventListener("submit", async (event) => {
+      const file = fileInput.files[0];
+      const isImage = file && /\.(png|jpe?g|webp|bmp)$/i.test(file.name);
+      if (submittingAfterOcr || typeInput.value !== "file" || !isImage) return;
+
+      event.preventDefault();
+      if (!window.Tesseract) {
+        showToast("Image OCR could not load. Check your internet connection.");
+        return;
+      }
+
+      analyzeButton.disabled = true;
+      analyzeButton.textContent = "Reading image...";
+      try {
+        const result = await window.Tesseract.recognize(file, "eng", {
+          logger: ({ status, progress }) => {
+            if (status === "recognizing text") {
+              analyzeButton.textContent = `Reading image ${Math.round(progress * 100)}%`;
+            }
+          }
+        });
+        const text = (result.data.text || "").replace(/\s+/g, " ").trim();
+        if (!text) {
+          showToast("No readable text was found in this image.");
+          analyzeButton.disabled = false;
+          analyzeButton.textContent = "Analyze File";
+          return;
+        }
+        extractedText.value = text.slice(0, 5000);
+        submittingAfterOcr = true;
+        form.submit();
+      } catch (error) {
+        console.error("Browser image OCR failed", error);
+        showToast("The image could not be read. Try a clearer image.");
+        analyzeButton.disabled = false;
+        analyzeButton.textContent = "Analyze File";
+      }
     });
   }
   selectSource(typeInput.value || "text");

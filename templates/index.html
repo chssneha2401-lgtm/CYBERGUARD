@@ -6,6 +6,7 @@
     <title>CyberGuard AI</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js" defer></script>
   </head>
   <body>
     <div class="aurora aurora-one"></div>
@@ -56,6 +57,7 @@
               <button class="source-tab" type="button" data-source="file">File / Media</button>
             </div>
             <input type="hidden" name="source_type" id="sourceType" value="{{ selected_source|default('text') }}">
+            <input type="hidden" name="extracted_text" id="extractedText" value="">
             {% if error %}
               <p class="alert-message">{{ error }}</p>
             {% endif %}
