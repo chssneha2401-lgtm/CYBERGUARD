@@ -12,7 +12,7 @@ A simple Machine Learning and NLP web application that classifies user-entered t
 - Starter dataset included in `data/messages.csv`
 - URL text extraction with private-network protection
 - PDF, DOCX, TXT, CSV, and Markdown scanning
-- Image OCR and audio/video speech transcription
+- Image OCR and audio speech transcription
 
 ## Run the App
 
@@ -26,7 +26,7 @@ Then open:
 http://127.0.0.1:5000
 ```
 
-Image scanning requires [Tesseract OCR](https://github.com/tesseract-ocr/tesseract). Audio and video scanning require `ffmpeg`; speech recognition also needs an internet connection.
+Image scanning requires [Tesseract OCR](https://github.com/tesseract-ocr/tesseract). Audio scanning requires `ffmpeg`; speech recognition also needs an internet connection.
 
 ## Project Structure
 

@@ -74,47 +74,67 @@
               <span>Maximum 5,000 characters</span>
               <span><strong id="charCount">{{ message|length }}</strong>/5000</span>
             </div>
-            </div>
-            <div class="source-panel" data-source-panel="url" hidden>
-              <label for="url">Public webpage URL</label>
-              <input id="url" name="url" type="url" placeholder="https://example.com/post">
-              <p class="source-help">Visible page text will be extracted and analyzed.</p>
-            </div>
-            <div class="source-panel" data-source-panel="file" hidden>
-              <label class="upload-zone" for="file">
-                <strong>Choose a document, image, audio, or video</strong>
-                <span id="fileName">PDF, DOCX, TXT, JPG, PNG, MP3, WAV, MP4 and more (max 25 MB)</span>
-              </label>
-              <input class="file-input" id="file" name="file" type="file" accept=".pdf,.docx,.txt,.csv,.md,.png,.jpg,.jpeg,.webp,.bmp,.wav,.mp3,.m4a,.ogg,.mp4,.mov,.webm,.mkv">
-            </div>
             <section class="example-panel" aria-label="Example messages">
               <div class="example-head">
                 <span>Try examples</span>
                 <small>Click to paste</small>
               </div>
               <div class="example-grid">
-                <button class="example-chip" type="button" data-example="You are such a dumb loser, nobody wants your opinion.">
+                <button class="example-chip" type="button" data-example-target="message" data-example="You are such a dumb loser, nobody wants your opinion.">
                   <strong>Example 1</strong>
                   <span>Insult</span>
                 </button>
-                <button class="example-chip" type="button" data-example="Do not invite her to the project chat. She does not fit with us.">
+                <button class="example-chip" type="button" data-example-target="message" data-example="Do not invite her to the project chat. She does not fit with us.">
                   <strong>Example 2</strong>
                   <span>Exclusion</span>
                 </button>
-                <button class="example-chip" type="button" data-example="Keep talking and I will hurt you after school.">
+                <button class="example-chip" type="button" data-example-target="message" data-example="Keep talking and I will hurt you after school.">
                   <strong>Example 3</strong>
                   <span>Threat</span>
                 </button>
-                <button class="example-chip" type="button" data-example="People from your religion do not belong in our chat.">
+                <button class="example-chip" type="button" data-example-target="message" data-example="People from your religion do not belong in our chat.">
                   <strong>Example 4</strong>
                   <span>Hate Speech</span>
                 </button>
-                <button class="example-chip" type="button" data-example="I disagree with your idea, but thanks for explaining it clearly.">
+                <button class="example-chip" type="button" data-example-target="message" data-example="I disagree with your idea, but thanks for explaining it clearly.">
                   <strong>Example 5</strong>
                   <span>Safe</span>
                 </button>
               </div>
             </section>
+            </div>
+            <div class="source-panel" data-source-panel="url" hidden>
+              <label for="url">Public webpage URL</label>
+              <input id="url" name="url" type="url" placeholder="https://example.com/post">
+              <p class="source-help">Visible page text will be extracted and analyzed.</p>
+              <section class="example-panel" aria-label="Example URLs">
+                <div class="example-head">
+                  <span>Try example URLs</span>
+                  <small>Click to paste</small>
+                </div>
+                <div class="example-grid">
+                  <button class="example-chip" type="button" data-example-target="url" data-example="https://www.example.com/">
+                    <strong>Safe URL</strong>
+                    <span>Neutral example</span>
+                  </button>
+                  <button class="example-chip" type="button" data-example-target="url" data-example="https://kidshealth.org/en/teens/cyberbullying.html">
+                    <strong>Bullying URL</strong>
+                    <span>Cyberbullying</span>
+                  </button>
+                  <button class="example-chip" type="button" data-example-target="url" data-example="https://www.pacer.org/bullying/info/cyberbullying/">
+                    <strong>Awareness Blog</strong>
+                    <span>Prevention guide</span>
+                  </button>
+                </div>
+              </section>
+            </div>
+            <div class="source-panel" data-source-panel="file" hidden>
+              <label class="upload-zone" for="file">
+                <strong>Choose a document, image, or audio file</strong>
+                <span id="fileName">PDF, DOCX, TXT, JPG, PNG, MP3, WAV and more (max 25 MB)</span>
+              </label>
+              <input class="file-input" id="file" name="file" type="file" accept=".pdf,.docx,.txt,.csv,.md,.png,.jpg,.jpeg,.webp,.bmp,.wav,.mp3,.m4a,.ogg">
+            </div>
             <div class="form-actions">
               <button class="primary-button" id="analyzeButton" type="submit">Analyze Text</button>
               <a class="ghost-button" href="{{ url_for('dashboard') }}">View Logs</a>
