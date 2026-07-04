@@ -444,14 +444,15 @@ function setupSourcePicker() {
 function setupExampleChips() {
   const textarea = document.getElementById("message");
   const counter = document.getElementById("charCount");
-  if (!textarea) return;
 
   document.querySelectorAll(".example-chip").forEach((button) => {
     button.addEventListener("click", () => {
-      textarea.value = button.dataset.example || "";
-      if (counter) counter.textContent = textarea.value.length;
-      textarea.focus();
-      textarea.dispatchEvent(new Event("input", { bubbles: true }));
+      const target = document.getElementById(button.dataset.exampleTarget || "message");
+      if (!target) return;
+      target.value = button.dataset.example || "";
+      if (target === textarea && counter) counter.textContent = target.value.length;
+      target.focus();
+      target.dispatchEvent(new Event("input", { bubbles: true }));
       showToast(`${button.querySelector("strong")?.textContent || "Example"} pasted`);
     });
   });

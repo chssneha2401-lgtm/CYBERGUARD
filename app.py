@@ -511,7 +511,7 @@ def analyze():
         elif source_type == "file":
             upload = request.files.get("file")
             if not upload or not upload.filename:
-                raise ExtractionError("Choose a document, image, audio, or video file.")
+                raise ExtractionError("Choose a document, image, or audio file.")
             source_name = Path(upload.filename).name
             suffix = Path(source_name).suffix.lower()
             browser_ocr_text = request.form.get("extracted_text", "").strip()

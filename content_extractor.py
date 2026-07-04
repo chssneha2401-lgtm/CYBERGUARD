@@ -99,7 +99,7 @@ def extract_file(file_storage, suffix):
             return _clean(pytesseract.image_to_string(Image.open(file_storage.stream)))
         except pytesseract.TesseractNotFoundError as error:
             raise ExtractionError("Image OCR needs Tesseract installed on the server.") from error
-    if suffix in {".wav", ".mp3", ".m4a", ".ogg", ".mp4", ".mov", ".webm", ".mkv"}:
+    if suffix in {".wav", ".mp3", ".m4a", ".ogg"}:
         return _extract_media(file_storage, suffix)
     raise ExtractionError("This file format is not supported.")
 
@@ -119,7 +119,7 @@ def _extract_media(file_storage, suffix):
                 timeout=60,
             )
         except (FileNotFoundError, subprocess.TimeoutExpired, subprocess.CalledProcessError) as error:
-            raise ExtractionError("Audio/video transcription needs ffmpeg and a valid media file.") from error
+            raise ExtractionError("Audio transcription needs ffmpeg and a valid audio file.") from error
 
         recognizer = sr.Recognizer()
         try:
